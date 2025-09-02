@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edukasi Sistem IoT Greenhouse: Node & Gateway</title>
+    <style>
+      :root {
+        --primary-color: #00796b;
+        --secondary-color: #26a69a;
+        --accent-color: #ffc107;
+        --bg-color: #f4f4f8;
+        --text-color: #333;
+        --card-bg: #ffffff;
+        --border-color: #e0e0e0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+      }
+      header p {
+        margin-top: 5px;
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .section {
+        background: var(--card-bg);
+        margin: 20px 0;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid var(--secondary-color);
+      }
+
+      h2 {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+
+      .diagram-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      #system-diagram {
+        width: 100%;
+        max-width: 900px;
+        cursor: pointer;
+      }
+
+      #system-diagram .component {
+        transition: all 0.3s ease;
+      }
+
+      #system-diagram .component:hover {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 5px var(--accent-color));
+      }
+
+      .info-panel {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #e8f5e9;
+        border: 1px solid #c8e6c9;
+        border-radius: 8px;
+        min-height: 100px;
+      }
+
+      .info-panel h3 {
+        margin-top: 0;
+        color: #1b5e20;
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #777;
+        position: relative;
+      }
+
+      .tab-button.active {
+        color: var(--primary-color);
+      }
+      .tab-button.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--primary-color);
+      }
+
+      .tab-content {
+        display: none;
+        padding: 20px 0;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        border: 1px solid var(--border-color);
+        padding: 12px;
+        text-align: left;
+      }
+      .comparison-table th {
+        background-color: #e0f2f1;
+      }
+      .comparison-table td:first-child {
+        font-weight: bold;
+      }
+
+      .flow-simulation {
+        position: relative;
+        margin-top: 30px;
+        padding: 20px;
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+      }
+
+      .flow-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .flow-item.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .flow-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+        width: 40px;
+        text-align: center;
+      }
+
+      #start-simulation {
+        background: var(--accent-color);
+        color: var(--text-color);
+        border: none;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      code {
+        background-color: #eee;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Arsitektur Sistem IoT Greenhouse</h1>
+      <p>Membedah Peran Sensor Node dan Gateway</p>
+    </header>
+
+    <div class="container">
+      <div class="section">
+        <h2>Diagram Sistem Interaktif</h2>
+        <p>
+          Klik pada setiap komponen dalam diagram di bawah ini untuk melihat
+          penjelasannya.
+        </p>
+        <div class="diagram-container">
+          <svg id="system-diagram" viewBox="0 0 400 250">
+            <!-- Garis Koneksi -->
+            <line
+              x1="60"
+              y1="125"
+              x2="180"
+              y2="125"
+              stroke="#999"
+              stroke-width="1.5"
+              stroke-dasharray="4"
+            />
+            <line
+              x1="220"
+              y1="125"
+              x2="340"
+              y2="125"
+              stroke="#999"
+              stroke-width="1.5"
+            />
+            <line
+              x1="200"
+              y1="70"
+              x2="200"
+              y2="20"
+              stroke="#999"
+              stroke-width="1.5"
+            />
+
+            <!-- Sensor Node -->
+            <g class="component" data-info="node">
+              <rect
+                x="20"
+                y="100"
+                width="80"
+                height="50"
+                fill="#26a69a"
+                rx="5"
+              />
+              <text
+                x="60"
+                y="128"
+                fill="white"
+                text-anchor="middle"
+                font-weight="bold"
+              >
+                Sensor Node
+              </text>
+            </g>
+
+            <!-- Gateway -->
+            <g class="component" data-info="gateway">
+              <rect
+                x="160"
+                y="90"
+                width="80"
+                height="70"
+                fill="#00796b"
+                rx="5"
+              />
+              <text
+                x="200"
+                y="128"
+                fill="white"
+                text-anchor="middle"
+                font-weight="bold"
+              >
+                Gateway
+              </text>
+            </g>
+
+            <!-- Cloud -->
+            <g class="component" data-info="cloud">
+              <path
+                d="M 330 125 C 320 105, 350 95, 360 105 C 380 105, 390 120, 380 135 C 380 150, 350 155, 340 145 C 325 145, 320 135, 330 125"
+                fill="#42a5f5"
+              />
+              <text
+                x="360"
+                y="128"
+                fill="white"
+                text-anchor="middle"
+                font-weight="bold"
+              >
+                Cloud/API
+              </text>
+            </g>
+
+            <!-- Greenhouse (Aktuator) -->
+            <g class="component" data-info="actuator">
+              <circle cx="200" cy="15" r="10" fill="#ffc107" />
+              <text x="200" y="45" fill="#333" text-anchor="middle">
+                Aktuator
+              </text>
+              <text
+                x="200"
+                y="58"
+                fill="#555"
+                text-anchor="middle"
+                font-size="0.8em"
+              >
+                (Kipas, dll)
+              </text>
+            </g>
+          </svg>
+        </div>
+        <div class="info-panel" id="info-panel">
+          <h3>Klik Sebuah Komponen</h3>
+          <p>
+            Penjelasan detail tentang komponen yang Anda pilih akan muncul di
+            sini.
+          </p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Peran dan Tanggung Jawab</h2>
+        <div class="tabs">
+          <button
+            class="tab-button active"
+            onclick="openTab(event, 'node-tab')"
+          >
+            Sensor Node
+          </button>
+          <button class="tab-button" onclick="openTab(event, 'gateway-tab')">
+            Gateway
+          </button>
+        </div>
+
+        <div id="node-tab" class="tab-content active">
+          <h3>Sensor Node: Pengumpul Data yang Tangguh</h3>
+          <p>
+            Sensor Node adalah "mata dan telinga" sistem di lapangan. Tugas
+            utamanya adalah satu: <strong>mengukur dan mengirim</strong>. Ia
+            dirancang untuk menjadi perangkat yang sederhana, hemat biaya, dan
+            sangat andal.
+          </p>
+          <ul>
+            <li>
+              <strong>Fokus Utama:</strong> Integritas Data. Tidak ada satu pun
+              data pengukuran yang boleh hilang.
+            </li>
+            <li>
+              <strong>Konektivitas:</strong> Menggunakan WiFi untuk mengirim
+              data.
+            </li>
+            <li>
+              <strong>Fitur Kunci: <em>Advanced Caching</em></strong
+              >. Jika WiFi putus, semua data sensor disimpan dalam
+              <em>Binary Ring Buffer</em> di memori flash. Ketika koneksi pulih,
+              semua data yang tersimpan akan diunggah secara otomatis.
+            </li>
+            <li>
+              <strong>Perangkat Keras:</strong> Minimalis. Hanya mikrokontroler
+              (ESP8266/ESP32) dan sensor (Suhu, Kelembaban, Cahaya). Tidak ada
+              komponen mahal seperti modem seluler atau layar.
+            </li>
+            <li>
+              <strong>Filosofi:</strong> <em>"Fire-and-Forget"</em>. Pasang,
+              konfigurasi, dan biarkan ia bekerja tanpa perlu intervensi.
+            </li>
+          </ul>
+        </div>
+        <div id="gateway-tab" class="tab-content">
+          <h3>Gateway: Otak dan Tangan Sistem</h3>
+          <p>
+            Gateway adalah pusat komando. Ia mengumpulkan data dari server (yang
+            sebelumnya dikirim oleh Node), membuat keputusan cerdas, dan
+            mengontrol lingkungan greenhouse secara fisik.
+          </p>
+          <ul>
+            <li>
+              <strong>Fokus Utama:</strong> Ketersediaan Tinggi (High
+              Availability) dan Kontrol Real-time. Gateway harus selalu online
+              dan responsif.
+            </li>
+            <li>
+              <strong>Konektivitas:</strong> <em>Dual-Network</em>. Menggunakan
+              WiFi sebagai prioritas utama, namun jika gagal, ia akan otomatis
+              beralih ke koneksi GPRS (seluler) sebagai cadangan.
+            </li>
+            <li>
+              <strong
+                >Fitur Kunci: <em>Failsafe Mode</em> &
+                <em>Persistent State</em></strong
+              >. Jika koneksi ke server putus total dalam waktu lama, ia akan
+              masuk ke mode aman (mematikan semua relay). Pengaturan manual
+              (override) dari pengguna juga disimpan di NVS agar tetap berlaku
+              bahkan setelah mati listrik.
+            </li>
+            <li>
+              <strong>Perangkat Keras:</strong> Lengkap. Mikrokontroler (ESP32),
+              modem seluler (SIM800L), modul RTC (DS3231), Relay, dan layar LCD
+              untuk diagnostik di tempat.
+            </li>
+            <li>
+              <strong>Filosofi:</strong> Pusat Pengendali yang Andal. Menjadi
+              satu-satunya titik pengambilan keputusan untuk menjaga greenhouse
+              tetap optimal dan aman.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Simulasi Alur Data Sensor Node</h2>
+        <p>
+          Klik tombol di bawah ini untuk melihat simulasi langkah-demi-langkah
+          bagaimana Sensor Node mengumpulkan dan mengirim data, termasuk saat
+          terjadi gangguan jaringan.
+        </p>
+        <div class="flow-simulation" id="flow-container">
+          <!-- Step-step simulasi akan ditambahkan oleh JavaScript -->
+        </div>
+        <button id="start-simulation">Mulai Simulasi</button>
+      </div>
+
+      <div class="section">
+        <h2>Tabel Perbandingan</h2>
+        <p>
+          Perbedaan utama antara kedua perangkat ini bukanlah kekurangan,
+          melainkan spesialisasi yang disengaja untuk menciptakan sistem yang
+          efisien dan tangguh.
+        </p>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Fitur</th>
+              <th>Sensor Node</th>
+              <th>Gateway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Peran Utama</td>
+              <td>Produsen Data (Mengukur & Mengirim)</td>
+              <td>Pengendali (Berpikir & Bertindak)</td>
+            </tr>
+            <tr>
+              <td>Konektivitas</td>
+              <td>WiFi Saja</td>
+              <td><strong>WiFi + GPRS (Seluler)</strong> sebagai cadangan</td>
+            </tr>
+            <tr>
+              <td>Strategi Saat Offline</td>
+              <td>
+                <strong>Menyimpan data di Cache</strong> untuk dikirim nanti
+              </td>
+              <td>
+                Masuk ke <strong>Mode Aman (Failsafe)</strong>, tidak ada cache
+                data
+              </td>
+            </tr>
+            <tr>
+              <td>Kontrol Perangkat Keras</td>
+              <td>Tidak ada (hanya membaca sensor)</td>
+              <td>Mengontrol 4 Relay (kipas, dll.)</td>
+            </tr>
+            <tr>
+              <td>Antarmuka Lokal</td>
+              <td>Tidak ada (Headless)</td>
+              <td><strong>Layar LCD 20x4</strong> untuk status real-time</td>
+            </tr>
+            <tr>
+              <td>Manajemen Waktu</td>
+              <td>Sinkronisasi NTP (saat online)</td>
+              <td><strong>Modul RTC Hardware</strong> (selalu akurat) + NTP</td>
+            </tr>
+            <tr>
+              <td>Fitur Unggulan</td>
+              <td>Caching data yang sangat andal</td>
+              <td>Redundansi jaringan dan logika failsafe</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      <p>Dibuat untuk edukasi internal kelompok. &copy; 2024</p>
+    </footer>
+
+    <script>
+      // --- Tab Logic ---
+      function openTab(evt, tabName) {
+        let i, tabcontent, tabbuttons;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+          tabbuttons[i].className = tabbuttons[i].className.replace(
+            " active",
+            ""
+          );
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+      }
+
+      // --- Interactive Diagram Logic ---
+      const diagramComponents = document.querySelectorAll(
+        "#system-diagram .component"
+      );
+      const infoPanel = document.getElementById("info-panel");
+
+      const componentInfo = {
+        node: {
+          title: "Sensor Node",
+          text: "Perangkat ini bertugas mengukur suhu, kelembaban, dan cahaya. Ia memiliki fitur cache canggih untuk menyimpan data jika koneksi WiFi terputus, memastikan tidak ada data yang hilang.",
+        },
+        gateway: {
+          title: "Gateway",
+          text: "Ini adalah otak dari sistem. Ia menerima data, membuat keputusan, dan mengontrol aktuator. Memiliki koneksi ganda (WiFi + Seluler) untuk keandalan maksimal dan layar LCD untuk pemantauan.",
+        },
+        cloud: {
+          title: "Cloud / Server API",
+          text: "Server pusat yang menerima dan menyimpan semua data dari Sensor Node. Gateway juga mengambil data ambang batas dan status override manual dari sini.",
+        },
+        actuator: {
+          title: "Aktuator",
+          text: "Ini adalah perangkat fisik di greenhouse, seperti kipas exhaust, blower, atau dehumidifier. Gateway mengontrol perangkat ini melalui Relay.",
+        },
+      };
+
+      diagramComponents.forEach((component) => {
+        component.addEventListener("click", () => {
+          const infoKey = component.dataset.info;
+          const info = componentInfo[infoKey];
+          infoPanel.innerHTML = `<h3>${info.title}</h3><p>${info.text}</p>`;
+        });
+      });
+
+      // --- Flow Simulation Logic ---
+      const startBtn = document.getElementById("start-simulation");
+      const flowContainer = document.getElementById("flow-container");
+
+      const simulationSteps = [
+        { icon: "🌡️", text: "Sensor Node membaca data suhu dan kelembaban." },
+        { icon: "💡", text: "Sensor Node juga membaca intensitas cahaya." },
+        { icon: "📝", text: "Data diformat menjadi sebuah paket JSON." },
+        {
+          icon: "📶",
+          text: "Mencoba terhubung ke WiFi untuk mengirim data...",
+        },
+        {
+          icon: "✅",
+          text: "Koneksi WiFi berhasil! Data dikirim ke Server Cloud.",
+        },
+        { icon: "💾", text: "Server Cloud menerima dan menyimpan data." },
+        { icon: "---", text: "--- Siklus berikutnya ---", delay: 1500 },
+        { icon: "🌡️", text: "Sensor Node membaca data baru." },
+        { icon: "📝", text: "Data baru diformat menjadi paket JSON." },
+        {
+          icon: "❌",
+          text: "<strong>Koneksi WiFi terputus!</strong> Data tidak dapat dikirim.",
+        },
+        {
+          icon: "📦",
+          text: "<strong>Fitur Caching Aktif!</strong> Data JSON disimpan ke dalam <em>Ring Buffer</em> di memori internal Node.",
+        },
+        {
+          icon: "🔄",
+          text: "Node terus mencoba menyambung kembali ke WiFi sambil tetap menyimpan data baru ke cache...",
+        },
+        { icon: "✅", text: "<strong>Koneksi WiFi pulih!</strong>" },
+        {
+          icon: "📤",
+          text: "Node mulai mengunggah semua data yang tersimpan di cache, dari yang terlama hingga yang terbaru.",
+        },
+        {
+          icon: "💯",
+          text: "Semua data yang tertunda berhasil dikirim. Tidak ada data yang hilang! Sistem kembali normal.",
+        },
+      ];
+
+      function runSimulation() {
+        startBtn.disabled = true;
+        flowContainer.innerHTML = "";
+        let delay = 0;
+
+        simulationSteps.forEach((step, index) => {
+          setTimeout(() => {
+            const div = document.createElement("div");
+            div.className = "flow-item";
+            div.innerHTML = `<div class="flow-icon">${step.icon}</div><div>${step.text}</div>`;
+            flowContainer.appendChild(div);
+            // Force reflow to trigger transition
+            void div.offsetWidth;
+            div.classList.add("visible");
+
+            if (index === simulationSteps.length - 1) {
+              startBtn.disabled = false;
+            }
+          }, delay);
+          delay += step.delay || 1000;
+        });
+      }
+
+      startBtn.addEventListener("click", runSimulation);
+    </script>
+  </body>
+</html>
