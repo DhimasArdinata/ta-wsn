@@ -22,12 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Interactive Diagram Logic (REVISED AND SOLIDIFIED) ---
+  // --- Interactive Diagram Logic (REVISED AND FIXED) ---
   function setupDiagram() {
     const diagramContainer = document.querySelector(".diagram-container");
     const infoPanel = document.getElementById("info-panel");
 
-    // Kode SVG dengan CSS yang disematkan dengan benar di dalam <defs>
+    // Kode SVG dengan posisi label yang sudah diperbaiki
     const svgContent = `
             <svg id="system-diagram" viewBox="0 0 450 240" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -65,52 +65,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 <!-- Komponen Sensor Node -->
                 <g class="component" data-info="node">
                     <rect x="20" y="90" width="85" height="60" fill="#26a69a" rx="8" filter="url(#shadow)"/>
-                    <text y="115" class="icon-label">
-                        <tspan x="62.5">🌡️</tspan>
-                    </text>
-                    <text y="130" class="main-label">
-                        <tspan x="62.5">SENSOR NODE</tspan>
-                    </text>
+                    <text x="62.5" y="115" class="icon-label">🌡️</text>
+                    <text x="62.5" y="130" class="main-label">SENSOR NODE</text>
                 </g>
 
                 <!-- Komponen Gateway -->
                 <g class="component" data-info="gateway">
                     <rect x="155" y="85" width="140" height="70" fill="#00796b" rx="8" filter="url(#shadow)"/>
-                     <text y="105" class="icon-label">
-                        <tspan x="225">🧠</tspan>
-                    </text>
-                    <text y="122" class="main-label">
-                        <tspan x="225">GATEWAY</tspan>
-                    </text>
-                    <text y="135" class="detail-label">
-                        <tspan x="225">📶 WiFi + GPRS</tspan>
-                    </text>
+                    <text x="225" y="105" class="icon-label">🧠</text>
+                    <text x="225" y="122" class="main-label">GATEWAY</text>
+                    <text x="225" y="135" class="detail-label">📶 WiFi + GPRS</text>
                 </g>
 
                 <!-- Komponen Cloud -->
                 <g class="component" data-info="cloud">
                     <path d="M 350 125 C 340 105, 370 95, 380 105 C 400 105, 410 120, 400 135 C 400 150, 370 155, 360 145 C 345 145, 340 135, 350 125" fill="#3b82f6" filter="url(#shadow)"/>
-                    <text y="120" class="icon-label">
-                        <tspan x="375">☁️</tspan>
-                    </text>
-                    <text y="135" class="main-label">
-                        <tspan x="375">CLOUD / API</tspan>
-                    </text>
+                    <text x="375" y="120" class="icon-label">☁️</text>
+                    <text x="375" y="135" class="main-label">CLOUD / API</text>
                 </g>
 
                 <!-- Komponen Aktuator -->
                 <g class="component" data-info="actuator">
                     <rect x="200" y="25" width="50" height="25" fill="#f59e0b" rx="5" filter="url(#shadow)"/>
-                    <text y="41" class="main-label" fill="#1c1917" font-size="8px">
-                        <tspan x="225">AKTUATOR</tspan>
-                    </text>
+                    <text x="225" y="41" class="main-label" fill="#1c1917" font-size="8px">AKTUATOR</text>
                 </g>
             </svg>
         `;
 
     diagramContainer.innerHTML = svgContent;
 
-    // Pastikan event listener ditambahkan SETELAH SVG dimuat ke DOM
     const componentInfo = {
       node: {
         title: "Sensor Node",
@@ -130,13 +113,22 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     };
 
-    document.querySelectorAll("#system-diagram .component").forEach((c) => {
-      c.addEventListener("click", () => {
-        const infoKey = c.dataset.info;
-        const info = componentInfo[infoKey];
-        infoPanel.innerHTML = `<h3>${info.title}</h3><p>${info.text}</p>`;
+    // --- PERBAIKAN LOGIKA EVENT LISTENER ---
+    // Gunakan event delegation pada container SVG
+    const svgElement = document.getElementById("system-diagram");
+    if (svgElement) {
+      svgElement.addEventListener("click", (event) => {
+        // Cari elemen .component terdekat dari elemen yang di-klik
+        const component = event.target.closest(".component");
+        if (component) {
+          const infoKey = component.dataset.info;
+          const info = componentInfo[infoKey];
+          if (info) {
+            infoPanel.innerHTML = `<h3>${info.title}</h3><p>${info.text}</p>`;
+          }
+        }
       });
-    });
+    }
   }
 
   // --- General Simulation Runner (dan sisa kode lainnya tidak berubah) ---
