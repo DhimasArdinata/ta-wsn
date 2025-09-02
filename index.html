@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -20,7 +20,7 @@
 
     <main class="container">
       <section class="section" id="diagram-section">
-        <h2>Diagram Arsitektur Sistem</h2>
+        <h2><span class="icon">🏗️</span> Diagram Arsitektur Sistem</h2>
         <p>
           Diagram ini mengilustrasikan komponen utama dan alur komunikasi dalam
           sistem. Klik pada setiap komponen untuk mendapatkan penjelasan detail.
@@ -38,7 +38,7 @@
       </section>
 
       <section class="section">
-        <h2>Peran dan Fitur Unggulan</h2>
+        <h2><span class="icon">🎯</span> Peran dan Fitur Unggulan</h2>
         <div class="tabs">
           <button class="tab-button active" data-tab="node-tab">
             Sensor Node
@@ -125,7 +125,7 @@
       </section>
 
       <section class="section">
-        <h2>Antarmuka Konfigurasi & Manajemen</h2>
+        <h2><span class="icon">💻</span> Antarmuka Konfigurasi & Manajemen</h2>
         <p>
           Gateway, sebagai pusat kendali, dilengkapi dengan antarmuka web yang
           kuat untuk memudahkan penyiapan awal dan pemeliharaan firmware. Mari
@@ -221,7 +221,9 @@
       </section>
 
       <section class="section">
-        <h2>Fitur Diagnostik: Terminal WebSerial</h2>
+        <h2>
+          <span class="icon">⌨️</span> Fitur Diagnostik: Terminal WebSerial
+        </h2>
         <p>
           Kedua perangkat dilengkapi dengan terminal WebSocket untuk diagnostik
           dan administrasi jarak jauh, namun dengan fungsionalitas yang sangat
@@ -237,7 +239,11 @@
             <div class="terminal-screen" id="node-terminal-screen"></div>
             <div class="terminal-input-bar">
               <span class="prompt">></span
-              ><input type="text" placeholder="Ketik 'help'..." readonly />
+              ><input
+                type="text"
+                placeholder="Simulasi sedang berjalan..."
+                readonly
+              />
             </div>
             <div class="simulation-controls">
               <button class="sim-button" id="start-node-terminal-sim">
@@ -254,7 +260,11 @@
             <div class="terminal-screen" id="gateway-terminal-screen"></div>
             <div class="terminal-input-bar">
               <span class="prompt">></span
-              ><input type="text" placeholder="Ketik 'status'..." readonly />
+              ><input
+                type="text"
+                placeholder="Simulasi sedang berjalan..."
+                readonly
+              />
             </div>
             <div class="simulation-controls">
               <button class="sim-button" id="start-gateway-terminal-sim">
@@ -266,7 +276,7 @@
       </section>
 
       <section class="section">
-        <h2>Simulasi Alur Kerja Sistem</h2>
+        <h2><span class="icon">⚙️</span> Simulasi Alur Kerja Sistem</h2>
         <div class="tabs">
           <button class="tab-button active" data-tab="node-sim-tab">
             Simulasi Sensor Node
@@ -300,6 +310,72 @@
               Jalankan Simulasi
             </button>
           </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2><span class="icon">📊</span> Tabel Perbandingan Rangkuman</h2>
+        <p>
+          Perbedaan utama antara kedua perangkat ini bukanlah kekurangan,
+          melainkan spesialisasi yang disengaja untuk menciptakan sistem yang
+          efisien dan tangguh.
+        </p>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Fitur</th>
+                <th>Sensor Node</th>
+                <th>Gateway</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Peran Utama</td>
+                <td>Produsen Data (Mengukur & Mengirim)</td>
+                <td>Pengendali (Berpikir & Bertindak)</td>
+              </tr>
+              <tr>
+                <td>Konektivitas</td>
+                <td>WiFi Saja</td>
+                <td><strong>WiFi + GPRS (Seluler)</strong> sebagai cadangan</td>
+              </tr>
+              <tr>
+                <td>Strategi Saat Offline</td>
+                <td>
+                  <strong>Menyimpan data di Cache</strong> untuk dikirim nanti
+                </td>
+                <td>Masuk ke <strong>Mode Aman (Failsafe)</strong></td>
+              </tr>
+              <tr>
+                <td>Kontrol Perangkat Keras</td>
+                <td>Tidak ada (hanya membaca sensor)</td>
+                <td>Mengontrol 4 Relay (kipas, dll.)</td>
+              </tr>
+              <tr>
+                <td>Antarmuka Lokal</td>
+                <td>Tidak ada (Headless)</td>
+                <td><strong>Layar LCD 20x4</strong> untuk status real-time</td>
+              </tr>
+              <tr>
+                <td>Manajemen Waktu</td>
+                <td>Sinkronisasi NTP (saat online)</td>
+                <td>
+                  <strong>Modul RTC Hardware</strong> (selalu akurat) + NTP
+                </td>
+              </tr>
+              <tr>
+                <td>Persistensi Status</td>
+                <td>Hanya Konfigurasi</td>
+                <td><strong>Konfigurasi & Override Relay (NVS)</strong></td>
+              </tr>
+              <tr>
+                <td>Fitur Unggulan</td>
+                <td>Caching data yang sangat andal</td>
+                <td>Redundansi jaringan dan logika failsafe</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </main>

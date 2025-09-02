@@ -29,16 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const svgContent = `
             <svg id="system-diagram" viewBox="0 0 450 220">
-                <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/></marker></defs>
-                <path d="M 105 110 C 130 110, 130 110, 155 110" stroke="#333" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrow)"/>
-                <path d="M 295 110 C 320 110, 320 110, 345 110" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-                <path d="M 295 120 C 320 120, 320 120, 345 120" stroke="#333" stroke-width="2" marker-start="url(#arrow)"/>
-                <path d="M 225 85 C 225 60, 225 60, 225 35" stroke="#c62828" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+                <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker></defs>
+                <path d="M 105 110 C 130 110, 130 110, 155 110" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrow)"/>
+                <path d="M 295 110 C 320 110, 320 110, 345 110" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 295 120 C 320 120, 320 120, 345 120" stroke="#475569" stroke-width="2" marker-start="url(#arrow)"/>
+                <path d="M 225 85 C 225 60, 225 60, 225 35" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
                 <text x="115" y="100" class="sub-label">Data Sensor (WiFi)</text><text x="300" y="100" class="sub-label">Komunikasi API (HTTPS)</text><text x="230" y="60" class="sub-label">Sinyal Kontrol</text>
                 <g class="component" data-info="node"><rect x="20" y="80" width="85" height="60" fill="#26a69a" rx="8"/><text x="62.5" y="110" class="label" fill="white">SENSOR</text><text x="62.5" y="122" class="label" fill="white">NODE</text><text x="35" y="98" font-size="12px">🌡️</text></g>
                 <g class="component" data-info="gateway"><rect x="155" y="75" width="140" height="70" fill="#00796b" rx="8"/><text x="225" y="110" class="label" fill="white">GATEWAY</text><text x="170" y="95" font-size="12px">🧠</text><text x="170" y="130" font-size="12px">📶 GPRS</text></g>
-                <g class="component" data-info="cloud"><path d="M 350 115 C 340 95, 370 85, 380 95 C 400 95, 410 110, 400 125 C 400 140, 370 145, 360 135 C 345 135, 340 125, 350 115" fill="#1976d2"/><text x="380" y="118" class="label" fill="white">CLOUD / API</text></g>
-                <g class="component" data-info="actuator"><rect x="200" y="10" width="50" height="25" fill="#ffb300" rx="5"/><text x="225" y="27" class="label" fill="#333">AKTUATOR</text></g>
+                <g class="component" data-info="cloud"><path d="M 350 115 C 340 95, 370 85, 380 95 C 400 95, 410 110, 400 125 C 400 140, 370 145, 360 135 C 345 135, 340 125, 350 115" fill="#3b82f6"/><text x="380" y="118" class="label" fill="white">CLOUD / API</text></g>
+                <g class="component" data-info="actuator"><rect x="200" y="10" width="50" height="25" fill="#f59e0b" rx="5"/><text x="225" y="27" class="label" fill="#1c1917">AKTUATOR</text></g>
             </svg>`;
     diagramContainer.innerHTML = svgContent;
 
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
     let delay = 0;
 
-    function typeCommand(pElement, command) {
+    function typeCommand(pElement, command, onComplete) {
       let i = 0;
       const typingInterval = 50;
       function typeChar() {
@@ -82,16 +82,20 @@ document.addEventListener("DOMContentLoaded", () => {
           pElement.innerHTML += command.charAt(i);
           i++;
           setTimeout(typeChar, typingInterval);
+        } else {
+          onComplete();
         }
       }
       typeChar();
     }
 
     steps.forEach((step, index) => {
+      delay += step.delayBefore || 0;
       setTimeout(() => {
         if (isTerminal) {
           const p = document.createElement("p");
           p.className = step.class || "";
+          container.appendChild(p);
 
           if (step.command) {
             const prompt = document.createElement("span");
@@ -103,11 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
             cmdSpan.className = "cmd";
             p.appendChild(cmdSpan);
 
-            container.appendChild(p);
-            typeCommand(cmdSpan, step.command);
+            typeCommand(cmdSpan, step.command, () => {
+              container.scrollTop = container.scrollHeight;
+            });
           } else {
             p.innerHTML = step.text;
-            container.appendChild(p);
           }
         } else {
           const div = document.createElement("div");
@@ -125,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
           button.disabled = false;
         }
       }, delay);
-      delay += step.delay || 1200;
+      delay += step.delayAfter || 1200;
     });
   }
 
@@ -195,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "✅",
       text: "Koneksi WiFi berhasil! Data dikirim ke Server Cloud.",
     },
-    { icon: "---", text: "--- Siklus berikutnya ---", delay: 1500 },
+    { icon: "---", text: "--- Siklus berikutnya ---", delayAfter: 1500 },
     { icon: "🌡️", text: "Sensor Node membaca data baru." },
     {
       icon: "❌",
@@ -260,78 +264,54 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   ];
 
-  // --- *** ULTIMATE TERMINAL SIMULATION STEPS *** ---
+  // --- *** ULTIMATE TERMINAL SIMULATION STEPS V2 *** ---
   const nodeTerminalSimSteps = [
     {
       class: "sys",
       text: "[SYSTEM] Greenhouse Node Terminal Connected.",
-      delay: 500,
+      delayAfter: 500,
     },
-    { command: "help", delay: 1500 },
+    { command: "help", delayBefore: 1000, delayAfter: 1500 },
     {
       class: "",
-      text: "--- Available Commands ---<br>Public Commands:<br>  help, login, status<br>Type 'login &lt;password&gt;' to access Admin Commands.",
+      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for help)<br>&nbsp;&nbsp;login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for login)<br>&nbsp;&nbsp;status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for status)<br>Type 'login &lt;password&gt;' to access Admin Commands.",
     },
-    { command: "status", delay: 2000 },
-    {
-      class: "",
-      text: "--- Node Status ---<br>Firmware: 9.9.2 | Uptime: 0h 5m 12s<br>Node ID: 1-4 | Free Heap: 28456 bytes<br>[WiFi]<br>  Status: Connected<br>  SSID: GH-WIFI<br>  RSSI: -65 dBm<br>[Server]<br>  Last Upload: 5m 2s ago (Success)<br>[Sensors]<br>  SHT: OK | BH1750: OK",
-    },
-    { command: "clearcache", delay: 2000 },
-    {
-      class: "err",
-      text: "[ERROR] Access Denied. Please 'login &lt;password&gt;' first.",
-    },
-    { command: "login rahasia123", delay: 1500 },
+    { command: "login rahasia123", delayBefore: 2000, delayAfter: 1500 },
     {
       class: "ok",
       text: "[AUTH] Login successful. Admin commands are enabled.",
     },
-    { command: "cache_status", delay: 2000 },
+    { command: "help", delayBefore: 1000, delayAfter: 2000 },
     {
       class: "",
-      text: "--- Cache Status (Binary Ring Buffer) ---<br>Queued Data: 98230 bytes<br>Head Pointer (next write): 54321<br>Tail Pointer (next read): 56091<br>Physical File Size on Disk: 102404 bytes",
+      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;... (sama seperti sebelumnya)<br>Admin Commands (Authenticated):<br>&nbsp;&nbsp;getconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for getconfig)<br>&nbsp;&nbsp;setconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for setconfig)<br>&nbsp;&nbsp;clearcache&nbsp;&nbsp;&nbsp;&nbsp; - (Description for clearcache)<br>&nbsp;&nbsp;factory_reset - (Description for factory_reset)<br>&nbsp;&nbsp;reboot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for reboot)",
     },
-    { command: "getconfig", delay: 2500 },
+    { command: "cache_status", delayBefore: 2000, delayAfter: 1500 },
     {
       class: "",
-      text: "--- Active Configuration ---<br>Auth Token: 3|xU7...tXSh<br>Data URL: https://atomic.web.id/api/sensor<br>--- Timing Configuration ---<br>Data Upload Interval: 1000 ms<br>Sensor Sample Interval: 60000 ms<br>Cache Send Interval: 15000 ms",
+      text: "--- Cache Status (Binary Ring Buffer) ---<br>Queued Data: 98230 bytes<br>Head Pointer: 54321 | Tail Pointer: 56091",
     },
-    {
-      class: "sys",
-      text: "[CONFIG-WARN] Data Upload Interval (1000) cannot be less than Sample Interval (60000). Adjusting.",
-      delay: 1500,
-    },
-    { command: "setconfig upload_interval 600000", delay: 2000 },
-    {
-      class: "ok",
-      text: "[SUCCESS] Configuration 'upload_interval' set to '600000'.<br>Configuration saved to file.",
-    },
-    { command: "clearcache CONFIRM", delay: 2000 },
-    { class: "ok", text: "Clearing data cache... OK." },
-    { command: "reboot", delay: 1500 },
+    { command: "reboot", delayBefore: 3000, delayAfter: 1500 },
     { class: "sys", text: "Rebooting..." },
   ];
   const gatewayTerminalSimSteps = [
-    { class: "sys", text: "[System] Connected to ESP32!", delay: 500 },
-    { command: "status", delay: 1500 },
-    { class: "sys", text: "[RX] --- System Status ---" },
-    { class: "sys", text: "[RX] Firmware: 3.2.0, GH_ID: 1" },
-    { class: "sys", text: "[RX] GPRS Connected: Yes, Signal: 25" },
-    { class: "sys", text: "[RX] Time: 2024-05-21 14:30:15" },
-    { class: "sys", text: "[RX] Temp: 31.2C, Hum: 85%, Light: 12000" },
-    { class: "sys", text: "[RX] Relays (Exh,Deh,Blw): ON, OFF, ON" },
-    { command: "reboot salah_pass", delay: 2000 },
+    { class: "sys", text: "[System] Connected to ESP32!", delayAfter: 500 },
+    { command: "status", delayBefore: 1000, delayAfter: 1500 },
+    {
+      class: "sys",
+      text: "[RX] --- System Status ---<br>[RX] Firmware: 3.2.0, GH_ID: 1<br>[RX] GPRS Connected: Yes, Signal: 25<br>[RX] Time: 2024-05-21 14:30:15<br>[RX] Temp: 31.2C, Hum: 85%, Light: 12000<br>[RX] Relays (Exh,Deh,Blw): ON, OFF, ON",
+    },
+    { command: "reboot salah_pass", delayBefore: 2000, delayAfter: 1500 },
     {
       class: "err",
-      text: "[RX] Error: Incorrect password. Usage: reboot <password>",
+      text: "[RX] Error: Incorrect password. Usage: reboot &lt;password&gt;",
     },
-    { command: "reboot medini123", delay: 1500 },
+    { command: "reboot medini123", delayBefore: 2000, delayAfter: 1500 },
     { class: "sys", text: "[RX] Rebooting gateway by command..." },
     {
       class: "sys",
       text: "[System] Connection lost. Retrying...",
-      delay: 1500,
+      delayAfter: 1500,
     },
   ];
 
