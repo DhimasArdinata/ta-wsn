@@ -73,23 +73,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById(containerId);
     container.innerHTML = "";
     let delay = 0;
+
+    function typeCommand(pElement, command) {
+      let i = 0;
+      const typingInterval = 50;
+      function typeChar() {
+        if (i < command.length) {
+          pElement.innerHTML += command.charAt(i);
+          i++;
+          setTimeout(typeChar, typingInterval);
+        }
+      }
+      typeChar();
+    }
+
     steps.forEach((step, index) => {
       setTimeout(() => {
-        const el = document.createElement(isTerminal ? "p" : "div");
         if (isTerminal) {
-          el.className = step.class || "";
-          el.innerHTML = step.text;
+          const p = document.createElement("p");
+          p.className = step.class || "";
+
+          if (step.command) {
+            const prompt = document.createElement("span");
+            prompt.className = "prompt";
+            prompt.innerText = "> ";
+            p.appendChild(prompt);
+
+            const cmdSpan = document.createElement("span");
+            cmdSpan.className = "cmd";
+            p.appendChild(cmdSpan);
+
+            container.appendChild(p);
+            typeCommand(cmdSpan, step.command);
+          } else {
+            p.innerHTML = step.text;
+            container.appendChild(p);
+          }
         } else {
-          el.className = "flow-item";
-          el.innerHTML = step.icon
+          const div = document.createElement("div");
+          div.className = "flow-item";
+          div.innerHTML = step.icon
             ? `<div class="flow-icon">${step.icon}</div><div>${step.text}</div>`
             : step.text;
+          container.appendChild(div);
+          void div.offsetWidth;
+          div.classList.add("visible");
         }
-        container.appendChild(el);
-        if (!isTerminal) {
-          void el.offsetWidth;
-          el.classList.add("visible");
-        }
+
         container.scrollTop = container.scrollHeight;
         if (index === steps.length - 1) {
           button.disabled = false;
@@ -229,70 +259,80 @@ document.addEventListener("DOMContentLoaded", () => {
       text: "Gateway melaporkan status barunya (Relay Kipas: ON) ke Cloud API.",
     },
   ];
+
+  // --- *** ULTIMATE TERMINAL SIMULATION STEPS *** ---
   const nodeTerminalSimSteps = [
-    { class: "sys", text: "[SYSTEM] Greenhouse Node Terminal Connected." },
+    {
+      class: "sys",
+      text: "[SYSTEM] Greenhouse Node Terminal Connected.",
+      delay: 500,
+    },
+    { command: "help", delay: 1500 },
     {
       class: "",
-      text: '<span class="prompt">> </span><span class="cmd">login rahasia123</span>',
-      delay: 1500,
+      text: "--- Available Commands ---<br>Public Commands:<br>  help, login, status<br>Type 'login &lt;password&gt;' to access Admin Commands.",
     },
+    { command: "status", delay: 2000 },
+    {
+      class: "",
+      text: "--- Node Status ---<br>Firmware: 9.9.2 | Uptime: 0h 5m 12s<br>Node ID: 1-4 | Free Heap: 28456 bytes<br>[WiFi]<br>  Status: Connected<br>  SSID: GH-WIFI<br>  RSSI: -65 dBm<br>[Server]<br>  Last Upload: 5m 2s ago (Success)<br>[Sensors]<br>  SHT: OK | BH1750: OK",
+    },
+    { command: "clearcache", delay: 2000 },
+    {
+      class: "err",
+      text: "[ERROR] Access Denied. Please 'login &lt;password&gt;' first.",
+    },
+    { command: "login rahasia123", delay: 1500 },
     {
       class: "ok",
       text: "[AUTH] Login successful. Admin commands are enabled.",
     },
+    { command: "cache_status", delay: 2000 },
     {
       class: "",
-      text: '<span class="prompt">> </span><span class="cmd">cache_status</span>',
-      delay: 2000,
+      text: "--- Cache Status (Binary Ring Buffer) ---<br>Queued Data: 98230 bytes<br>Head Pointer (next write): 54321<br>Tail Pointer (next read): 56091<br>Physical File Size on Disk: 102404 bytes",
     },
-    { class: "", text: "--- Cache Status (Binary Ring Buffer) ---" },
-    { class: "", text: "Queued Data: 1450 bytes" },
-    { class: "", text: "Head Pointer: 8730 | Tail Pointer: 7280" },
+    { command: "getconfig", delay: 2500 },
     {
       class: "",
-      text: '<span class="prompt">> </span><span class="cmd">getconfig</span>',
-      delay: 2500,
-    },
-    { class: "", text: "--- Active Configuration ---" },
-    { class: "", text: "Data URL: https://atomic.web.id/api/sensor" },
-    { class: "", text: "Data Upload Interval: 600000 ms" },
-    {
-      class: "err",
-      text: "[ERROR] Access Denied. Please 'login <password>' first.",
-      delay: 3000,
+      text: "--- Active Configuration ---<br>Auth Token: 3|xU7...tXSh<br>Data URL: https://atomic.web.id/api/sensor<br>--- Timing Configuration ---<br>Data Upload Interval: 1000 ms<br>Sensor Sample Interval: 60000 ms<br>Cache Send Interval: 15000 ms",
     },
     {
-      class: "",
-      text: '<span class="prompt">> </span><span class="cmd">status</span>',
-    },
-  ];
-  const gatewayTerminalSimSteps = [
-    { class: "sys", text: "[System] Connected to ESP32!" },
-    {
-      class: "",
-      text: '<span class="prompt">> </span><span class="cmd">status</span>',
+      class: "sys",
+      text: "[CONFIG-WARN] Data Upload Interval (1000) cannot be less than Sample Interval (60000). Adjusting.",
       delay: 1500,
     },
+    { command: "setconfig upload_interval 600000", delay: 2000 },
+    {
+      class: "ok",
+      text: "[SUCCESS] Configuration 'upload_interval' set to '600000'.<br>Configuration saved to file.",
+    },
+    { command: "clearcache CONFIRM", delay: 2000 },
+    { class: "ok", text: "Clearing data cache... OK." },
+    { command: "reboot", delay: 1500 },
+    { class: "sys", text: "Rebooting..." },
+  ];
+  const gatewayTerminalSimSteps = [
+    { class: "sys", text: "[System] Connected to ESP32!", delay: 500 },
+    { command: "status", delay: 1500 },
     { class: "sys", text: "[RX] --- System Status ---" },
     { class: "sys", text: "[RX] Firmware: 3.2.0, GH_ID: 1" },
     { class: "sys", text: "[RX] GPRS Connected: Yes, Signal: 25" },
+    { class: "sys", text: "[RX] Time: 2024-05-21 14:30:15" },
+    { class: "sys", text: "[RX] Temp: 31.2C, Hum: 85%, Light: 12000" },
     { class: "sys", text: "[RX] Relays (Exh,Deh,Blw): ON, OFF, ON" },
+    { command: "reboot salah_pass", delay: 2000 },
     {
-      class: "",
-      text: '<span class="prompt">> </span><span class="cmd">override exhaust off</span>',
-      delay: 2500,
+      class: "err",
+      text: "[RX] Error: Incorrect password. Usage: reboot <password>",
     },
-    {
-      class: "sys",
-      text: "[RX] Manual override set for Relay Exhaust to OFF for 30 seconds.",
-    },
-    { class: "sys", text: "[RX] Relay 1 -> OFF (MANUAL)", delay: 1000 },
+    { command: "reboot medini123", delay: 1500 },
+    { class: "sys", text: "[RX] Rebooting gateway by command..." },
     {
       class: "sys",
-      text: "[RX] Manual override for Relay Exhaust expired. Returning to auto mode.",
-      delay: 30000,
+      text: "[System] Connection lost. Retrying...",
+      delay: 1500,
     },
-    { class: "sys", text: "[RX] Relay 1 -> ON (AUTO)" },
   ];
 
   // --- Initializations and Event Listeners ---
