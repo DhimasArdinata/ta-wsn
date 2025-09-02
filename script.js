@@ -33,12 +33,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
                     </marker>
+                    <!-- Definisikan filter untuk bayangan halus -->
+                    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+                        <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
+                        <feMerge>
+                            <feMergeNode in="offsetBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
                     <style>
-                        .diag-label { font: bold 10px var(--font-sans); fill: white; text-anchor: middle; }
                         .diag-sublabel { font: 600 8px var(--font-sans); fill: #334155; text-anchor: middle; }
-                        .diag-icon { font-size: 14px; }
-                        .diag-text-bg { fill: none; } /* Transparan */
-                        .diag-text-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+                        .main-label { font: 700 11px var(--font-sans); fill: white; text-anchor: middle; }
+                        .icon-label { font: 400 14px sans-serif; text-anchor: middle; }
+                        .detail-label { font: 600 7px var(--font-sans); fill: #e2e8f0; text-anchor: middle; }
                     </style>
                 </defs>
 
@@ -56,46 +64,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <!-- Komponen Sensor Node -->
                 <g class="component" data-info="node">
-                    <rect x="20" y="90" width="85" height="60" fill="#26a69a" rx="8"/>
-                    <foreignObject x="20" y="90" width="85" height="60">
-                        <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
-                            <span class="diag-icon">🌡️</span>
-                            <span class="diag-label">SENSOR NODE</span>
-                        </div>
-                    </foreignObject>
+                    <rect x="20" y="90" width="85" height="60" fill="#26a69a" rx="8" filter="url(#shadow)"/>
+                    <text y="115" class="icon-label">
+                        <tspan x="62.5">🌡️</tspan>
+                    </text>
+                    <text y="130" class="main-label">
+                        <tspan x="62.5">SENSOR NODE</tspan>
+                    </text>
                 </g>
 
                 <!-- Komponen Gateway -->
                 <g class="component" data-info="gateway">
-                    <rect x="155" y="85" width="140" height="70" fill="#00796b" rx="8"/>
-                    <foreignObject x="155" y="85" width="140" height="70">
-                         <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
-                            <span class="diag-icon">🧠</span>
-                            <span class="diag-label">GATEWAY</span>
-                            <span class="diag-sublabel" style="fill: #e2e8f0; font-size: 7px; margin-top: 2px;">📶 WiFi + GPRS</span>
-                        </div>
-                    </foreignObject>
+                    <rect x="155" y="85" width="140" height="70" fill="#00796b" rx="8" filter="url(#shadow)"/>
+                     <text y="105" class="icon-label">
+                        <tspan x="225">🧠</tspan>
+                    </text>
+                    <text y="122" class="main-label">
+                        <tspan x="225">GATEWAY</tspan>
+                    </text>
+                    <text y="135" class="detail-label">
+                        <tspan x="225">📶 WiFi + GPRS</tspan>
+                    </text>
                 </g>
 
                 <!-- Komponen Cloud -->
                 <g class="component" data-info="cloud">
-                    <path d="M 350 125 C 340 105, 370 95, 380 105 C 400 105, 410 120, 400 135 C 400 150, 370 155, 360 145 C 345 145, 340 135, 350 125" fill="#3b82f6"/>
-                    <foreignObject x="345" y="100" width="60" height="50">
-                        <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
-                            <span class="diag-icon">☁️</span>
-                            <span class="diag-label">CLOUD / API</span>
-                        </div>
-                    </foreignObject>
+                    <path d="M 350 125 C 340 105, 370 95, 380 105 C 400 105, 410 120, 400 135 C 400 150, 370 155, 360 145 C 345 145, 340 135, 350 125" fill="#3b82f6" filter="url(#shadow)"/>
+                    <text y="120" class="icon-label">
+                        <tspan x="375">☁️</tspan>
+                    </text>
+                    <text y="135" class="main-label">
+                        <tspan x="375">CLOUD / API</tspan>
+                    </text>
                 </g>
 
                 <!-- Komponen Aktuator -->
                 <g class="component" data-info="actuator">
-                    <rect x="200" y="25" width="50" height="25" fill="#f59e0b" rx="5"/>
-                    <foreignObject x="200" y="25" width="50" height="25">
-                         <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
-                            <span class="diag-label" style="fill:#1c1917">AKTUATOR</span>
-                        </div>
-                    </foreignObject>
+                    <rect x="200" y="25" width="50" height="25" fill="#f59e0b" rx="5" filter="url(#shadow)"/>
+                    <text y="41" class="main-label" fill="#1c1917" font-size="8px">
+                        <tspan x="225">AKTUATOR</tspan>
+                    </text>
                 </g>
             </svg>
         `;
