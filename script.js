@@ -22,18 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Interactive Diagram Logic ---
+  // --- Interactive Diagram Logic (REVISED AND SOLIDIFIED) ---
   function setupDiagram() {
     const diagramContainer = document.querySelector(".diagram-container");
     const infoPanel = document.getElementById("info-panel");
 
+    // Kode SVG dengan CSS yang disematkan dengan benar di dalam <defs>
     const svgContent = `
             <svg id="system-diagram" viewBox="0 0 450 240" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
                     </marker>
-                    <!-- Definisikan filter untuk bayangan halus -->
                     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
                         <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
                         <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
@@ -43,10 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         </feMerge>
                     </filter>
                     <style>
-                        .diag-sublabel { font: 600 8px var(--font-sans); fill: #334155; text-anchor: middle; }
-                        .main-label { font: 700 11px var(--font-sans); fill: white; text-anchor: middle; }
+                        .diag-sublabel { font: 600 8px 'Inter', sans-serif; fill: #334155; text-anchor: middle; }
+                        .main-label { font: 700 11px 'Inter', sans-serif; fill: white; text-anchor: middle; }
                         .icon-label { font: 400 14px sans-serif; text-anchor: middle; }
-                        .detail-label { font: 600 7px var(--font-sans); fill: #e2e8f0; text-anchor: middle; }
+                        .detail-label { font: 600 7px 'Inter', sans-serif; fill: #e2e8f0; text-anchor: middle; }
                     </style>
                 </defs>
 
@@ -107,8 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 </g>
             </svg>
         `;
+
     diagramContainer.innerHTML = svgContent;
 
+    // Pastikan event listener ditambahkan SETELAH SVG dimuat ke DOM
     const componentInfo = {
       node: {
         title: "Sensor Node",
@@ -127,14 +129,17 @@ document.addEventListener("DOMContentLoaded", () => {
         text: "Ini adalah perangkat fisik di greenhouse, seperti kipas exhaust, blower, atau dehumidifier. Gateway mengontrol perangkat ini melalui Relay.",
       },
     };
+
     document.querySelectorAll("#system-diagram .component").forEach((c) => {
       c.addEventListener("click", () => {
+        const infoKey = c.dataset.info;
+        const info = componentInfo[infoKey];
         infoPanel.innerHTML = `<h3>${info.title}</h3><p>${info.text}</p>`;
       });
     });
   }
 
-  // --- General Simulation Runner ---
+  // --- General Simulation Runner (dan sisa kode lainnya tidak berubah) ---
   function runSimulation(containerId, steps, button, isTerminal = false) {
     button.disabled = true;
     const container = document.getElementById(containerId);
@@ -331,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   ];
 
-  // --- *** ULTIMATE TERMINAL SIMULATION STEPS V2 *** ---
+  // --- *** ULTIMATE TERMINAL SIMULATION STEPS V3 (with help after login) *** ---
   const nodeTerminalSimSteps = [
     {
       class: "sys",
@@ -341,17 +346,17 @@ document.addEventListener("DOMContentLoaded", () => {
     { command: "help", delayBefore: 1000, delayAfter: 1500 },
     {
       class: "",
-      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for help)<br>&nbsp;&nbsp;login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for login)<br>&nbsp;&nbsp;status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for status)<br>Type 'login &lt;password&gt;' to access Admin Commands.",
+      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Shows this help message<br>&nbsp;&nbsp;login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Login to access admin commands<br>&nbsp;&nbsp;status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Shows current node status<br>Type 'login &lt;password&gt;' to access Admin Commands.",
     },
     { command: "login rahasia123", delayBefore: 2000, delayAfter: 1500 },
     {
       class: "ok",
       text: "[AUTH] Login successful. Admin commands are enabled.",
     },
-    { command: "help", delayBefore: 1000, delayAfter: 2000 },
+    { command: "help", delayBefore: 1000, delayAfter: 2500 },
     {
       class: "",
-      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;... (sama seperti sebelumnya)<br>Admin Commands (Authenticated):<br>&nbsp;&nbsp;getconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for getconfig)<br>&nbsp;&nbsp;setconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for setconfig)<br>&nbsp;&nbsp;clearcache&nbsp;&nbsp;&nbsp;&nbsp; - (Description for clearcache)<br>&nbsp;&nbsp;factory_reset - (Description for factory_reset)<br>&nbsp;&nbsp;reboot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- (Description for reboot)",
+      text: "--- Available Commands ---<br>Public Commands:<br>&nbsp;&nbsp;... (public commands listed above)<br>Admin Commands (Authenticated):<br>&nbsp;&nbsp;getconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Get active configuration<br>&nbsp;&nbsp;setconfig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Set a configuration value<br>&nbsp;&nbsp;clearcache&nbsp;&nbsp;&nbsp;&nbsp; - Clears the data cache<br>&nbsp;&nbsp;factory_reset - WARNING: Wipes all data<br>&nbsp;&nbsp;reboot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Reboots the device",
     },
     { command: "cache_status", delayBefore: 2000, delayAfter: 1500 },
     {
