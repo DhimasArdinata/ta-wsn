@@ -28,18 +28,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const infoPanel = document.getElementById("info-panel");
 
     const svgContent = `
-            <svg id="system-diagram" viewBox="0 0 450 220">
-                <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker></defs>
-                <path d="M 105 110 C 130 110, 130 110, 155 110" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrow)"/>
-                <path d="M 295 110 C 320 110, 320 110, 345 110" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-                <path d="M 295 120 C 320 120, 320 120, 345 120" stroke="#475569" stroke-width="2" marker-start="url(#arrow)"/>
-                <path d="M 225 85 C 225 60, 225 60, 225 35" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
-                <text x="115" y="100" class="sub-label">Data Sensor (WiFi)</text><text x="300" y="100" class="sub-label">Komunikasi API (HTTPS)</text><text x="230" y="60" class="sub-label">Sinyal Kontrol</text>
-                <g class="component" data-info="node"><rect x="20" y="80" width="85" height="60" fill="#26a69a" rx="8"/><text x="62.5" y="110" class="label" fill="white">SENSOR</text><text x="62.5" y="122" class="label" fill="white">NODE</text><text x="35" y="98" font-size="12px">🌡️</text></g>
-                <g class="component" data-info="gateway"><rect x="155" y="75" width="140" height="70" fill="#00796b" rx="8"/><text x="225" y="110" class="label" fill="white">GATEWAY</text><text x="170" y="95" font-size="12px">🧠</text><text x="170" y="130" font-size="12px">📶 GPRS</text></g>
-                <g class="component" data-info="cloud"><path d="M 350 115 C 340 95, 370 85, 380 95 C 400 95, 410 110, 400 125 C 400 140, 370 145, 360 135 C 345 135, 340 125, 350 115" fill="#3b82f6"/><text x="380" y="118" class="label" fill="white">CLOUD / API</text></g>
-                <g class="component" data-info="actuator"><rect x="200" y="10" width="50" height="25" fill="#f59e0b" rx="5"/><text x="225" y="27" class="label" fill="#1c1917">AKTUATOR</text></g>
-            </svg>`;
+            <svg id="system-diagram" viewBox="0 0 450 240" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+                    </marker>
+                    <style>
+                        .diag-label { font: bold 10px var(--font-sans); fill: white; text-anchor: middle; }
+                        .diag-sublabel { font: 600 8px var(--font-sans); fill: #334155; text-anchor: middle; }
+                        .diag-icon { font-size: 14px; }
+                        .diag-text-bg { fill: none; } /* Transparan */
+                        .diag-text-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+                    </style>
+                </defs>
+
+                <!-- Garis Koneksi -->
+                <path d="M 105 120 C 130 120, 130 120, 155 120" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrow)"/>
+                <path d="M 295 120 C 320 120, 320 120, 345 120" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 295 130 C 320 130, 320 130, 345 130" stroke="#475569" stroke-width="2" marker-start="url(#arrow)"/>
+                <path d="M 225 90 C 225 70, 225 70, 225 50" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+                
+                <!-- Label Koneksi -->
+                <text x="130" y="110" class="diag-sublabel">Data Sensor (WiFi)</text>
+                <text x="320" y="110" class="diag-sublabel">Komunikasi API</text>
+                <text x="320" y="142" class="diag-sublabel">(HTTPS)</text>
+                <text x="225" y="65" class="diag-sublabel">Sinyal Kontrol</text>
+
+                <!-- Komponen Sensor Node -->
+                <g class="component" data-info="node">
+                    <rect x="20" y="90" width="85" height="60" fill="#26a69a" rx="8"/>
+                    <foreignObject x="20" y="90" width="85" height="60">
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
+                            <span class="diag-icon">🌡️</span>
+                            <span class="diag-label">SENSOR NODE</span>
+                        </div>
+                    </foreignObject>
+                </g>
+
+                <!-- Komponen Gateway -->
+                <g class="component" data-info="gateway">
+                    <rect x="155" y="85" width="140" height="70" fill="#00796b" rx="8"/>
+                    <foreignObject x="155" y="85" width="140" height="70">
+                         <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
+                            <span class="diag-icon">🧠</span>
+                            <span class="diag-label">GATEWAY</span>
+                            <span class="diag-sublabel" style="fill: #e2e8f0; font-size: 7px; margin-top: 2px;">📶 WiFi + GPRS</span>
+                        </div>
+                    </foreignObject>
+                </g>
+
+                <!-- Komponen Cloud -->
+                <g class="component" data-info="cloud">
+                    <path d="M 350 125 C 340 105, 370 95, 380 105 C 400 105, 410 120, 400 135 C 400 150, 370 155, 360 145 C 345 145, 340 135, 350 125" fill="#3b82f6"/>
+                    <foreignObject x="345" y="100" width="60" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
+                            <span class="diag-icon">☁️</span>
+                            <span class="diag-label">CLOUD / API</span>
+                        </div>
+                    </foreignObject>
+                </g>
+
+                <!-- Komponen Aktuator -->
+                <g class="component" data-info="actuator">
+                    <rect x="200" y="25" width="50" height="25" fill="#f59e0b" rx="5"/>
+                    <foreignObject x="200" y="25" width="50" height="25">
+                         <div xmlns="http://www.w3.org/1999/xhtml" class="diag-text-wrapper">
+                            <span class="diag-label" style="fill:#1c1917">AKTUATOR</span>
+                        </div>
+                    </foreignObject>
+                </g>
+            </svg>
+        `;
     diagramContainer.innerHTML = svgContent;
 
     const componentInfo = {
